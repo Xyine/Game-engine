@@ -1,5 +1,7 @@
 #include <iostream>
 
+const int objectCount = 2;
+
 struct GameObject {
     const char* name;
     int x;
@@ -8,9 +10,16 @@ struct GameObject {
     int vy;
 };
 
+struct Engine {
+    bool isRunning;
+    int frame;
+    GameObject objects[objectCount];
+};
+
 void input();
 void update(GameObject& gameObject);
 void render(const GameObject& gameObject);
+void processFrame(Engine& engine);
 void runEngine();
 
 int main() {
@@ -23,42 +32,46 @@ void input() {
 }
 
 void update(GameObject& gameObject)  {
-    std::cout << "Updating game...\n";
+    std::cout << "Updating " << gameObject.name << "...\n";
 
     gameObject.x += gameObject.vx;
     gameObject.y += gameObject.vy;
 }
 
 void render(const GameObject& gameObject) {
-    std::cout << "Rendering frame...\n";
+    std::cout << "Rendering " << gameObject.name << "...\n";
     std::cout << gameObject.name << " position: (" << gameObject.x << ", " << gameObject.y << ")\n";
 }
 
+void processFrame(Engine& engine) {
+    input();
+
+    for (int i = 0; i < objectCount; i++) {
+        update(engine.objects[i]);
+    }
+
+    for (int i = 0; i < objectCount; i++) {
+        render(engine.objects[i]);
+    }
+
+    std::cout << "---\n";
+}
+
 void runEngine() {
-    bool isRunning = true;
-    int frame = 0;
+    Engine engine;
+    engine.isRunning = true;
+    engine.frame = 0;
 
-    GameObject objects[2];
-    objects[0] = {"Player", 0, 0, 1, 0};
-    objects[1] = {"Enemy", 10, 5, 0, 1};
+    engine.objects[0] = {"Player", 0, 0, 1, 0};
+    engine.objects[1] = {"Enemy", 10, 5, 0, 1};
 
-    while (isRunning) {
-        input();
+    while (engine.isRunning) {
+        processFrame(engine);
 
-        for (int i = 0; i < 2; i++) {
-            update(objects[i]);
-        }
+        engine.frame++;
 
-        for (int i = 0; i < 2; i++) {
-            render(objects[i]);
-        }
-        
-        std::cout << "---\n";
-
-        frame++;
-
-        if (frame >= 3) {
-            isRunning = false;
+        if (engine.frame >= 3) {
+            engine.isRunning = false;
         }
     }
 
