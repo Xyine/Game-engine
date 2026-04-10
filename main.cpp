@@ -1,25 +1,34 @@
 #include <iostream>
+#include <array>
 
 const int objectCount = 2;
 
-struct GameObject {
-    const char* name;
+struct Vec2 {
     int x;
     int y;
-    int vx;
-    int vy;
+};
+
+struct GameObject {
+    const char* name;
+    Vec2 position;
+    Vec2 velocity;
 };
 
 struct Engine {
     bool isRunning;
-    int frame;
-    GameObject objects[objectCount];
+    int frame;      // current frame count
+    int maxFrames;  // configuration   
+    std::array<GameObject, objectCount> objects;
 };
 
 void input();
-void update(GameObject& gameObject);
-void render(const GameObject& gameObject);
+void updateSystem(GameObject& gameObject);
+void renderSystem(const GameObject& gameObject);
+void initializeEngine(Engine& engine);
+void updateObjects(Engine& engine);
+void renderObjects(const Engine& engine);
 void processFrame(Engine& engine);
+void updateEngineState(Engine& engine);
 void runEngine();
 
 int main() {
@@ -31,48 +40,62 @@ void input() {
     std::cout << "Handling input...\n";
 }
 
-void update(GameObject& gameObject)  {
+void updateSystem(GameObject& gameObject) {
     std::cout << "Updating " << gameObject.name << "...\n";
 
-    gameObject.x += gameObject.vx;
-    gameObject.y += gameObject.vy;
+    gameObject.position.x += gameObject.velocity.x;
+    gameObject.position.y += gameObject.velocity.y;
 }
 
-void render(const GameObject& gameObject) {
+void renderSystem(const GameObject& gameObject) {
     std::cout << "Rendering " << gameObject.name << "...\n";
-    std::cout << gameObject.name << " position: (" << gameObject.x << ", " << gameObject.y << ")\n";
+    std::cout << gameObject.name << " position: (" << gameObject.position.x << ", " << gameObject.position.y << ")\n";
+}
+
+void initializeEngine(Engine& engine) {
+    engine.isRunning = true;
+    engine.frame = 0;
+    engine.maxFrames = 3;
+
+    engine.objects[0] = {"Player", 0, 0, 1, 0};
+    engine.objects[1] = {"Enemy", 10, 5, 0, 1};
+}
+
+void updateObjects(Engine& engine) {
+    for (GameObject& object : engine.objects) {
+        updateSystem(object);
+    }
+}
+
+void renderObjects(const Engine& engine) {
+    for (const GameObject& object : engine.objects) {
+        renderSystem(object);
+    }
 }
 
 void processFrame(Engine& engine) {
     input();
-
-    for (int i = 0; i < objectCount; i++) {
-        update(engine.objects[i]);
-    }
-
-    for (int i = 0; i < objectCount; i++) {
-        render(engine.objects[i]);
-    }
-
+    updateObjects(engine);
+    renderObjects(engine);
     std::cout << "---\n";
+}
+
+void updateEngineState(Engine& engine) {
+    engine.frame++;
+
+    if (engine.frame >= engine.maxFrames) {
+        engine.isRunning = false;
+    }
 }
 
 void runEngine() {
     Engine engine;
-    engine.isRunning = true;
-    engine.frame = 0;
 
-    engine.objects[0] = {"Player", 0, 0, 1, 0};
-    engine.objects[1] = {"Enemy", 10, 5, 0, 1};
+    initializeEngine(engine);
 
     while (engine.isRunning) {
         processFrame(engine);
-
-        engine.frame++;
-
-        if (engine.frame >= 3) {
-            engine.isRunning = false;
-        }
+        updateEngineState(engine);
     }
 
     std::cout << "Engine stopped.\n";
