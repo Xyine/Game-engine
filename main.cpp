@@ -1,19 +1,15 @@
 #include <iostream>
 
-enum class Direction {
-    Left,
-    Right,
-    Up,
-    Down
-};
-
 struct GameObject {
+    const char* name;
     int x;
     int y;
+    int vx;
+    int vy;
 };
 
 void input();
-void update(GameObject& gameObject, Direction direction) ;
+void update(GameObject& gameObject);
 void render(const GameObject& gameObject);
 void runEngine();
 
@@ -26,44 +22,37 @@ void input() {
     std::cout << "Handling input...\n";
 }
 
-void update(GameObject& gameObject, Direction direction)  {
+void update(GameObject& gameObject)  {
     std::cout << "Updating game...\n";
 
-    switch (direction) {
-        case Direction::Left:
-            gameObject.x--;
-            break;
-        case Direction::Right:
-            gameObject.x++;
-            break;
-        case Direction::Up:
-            gameObject.y++;
-            break;
-        case Direction::Down:
-            gameObject.y--;
-            break;
-        default:
-            break;
-    }
+    gameObject.x += gameObject.vx;
+    gameObject.y += gameObject.vy;
 }
 
 void render(const GameObject& gameObject) {
     std::cout << "Rendering frame...\n";
-    std::cout << "Object position: (" << gameObject.x << ", " << gameObject.y << ")\n";
+    std::cout << gameObject.name << " position: (" << gameObject.x << ", " << gameObject.y << ")\n";
 }
 
 void runEngine() {
     bool isRunning = true;
     int frame = 0;
 
-    GameObject gameObject{0, 0};
-    Direction order[3] = {Direction::Right, Direction::Right, Direction::Up};
+    GameObject objects[2];
+    objects[0] = {"Player", 0, 0, 1, 0};
+    objects[1] = {"Enemy", 10, 5, 0, 1};
 
     while (isRunning) {
         input();
-        Direction direction = order[frame];
-        update(gameObject, direction);
-        render(gameObject);
+
+        for (int i = 0; i < 2; i++) {
+            update(objects[i]);
+        }
+
+        for (int i = 0; i < 2; i++) {
+            render(objects[i]);
+        }
+        
         std::cout << "---\n";
 
         frame++;
