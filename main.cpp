@@ -3,20 +3,18 @@
 
 const int objectCount = 2;
 
-struct Engine;
 struct GameObject;
 
-void input();
-void updateSystem(GameObject& gameObject);
+void updateSystem(GameObject& gameObject, float deltaTime);
 void renderSystem(const GameObject& gameObject);
 
 struct Vec2 {
-    int x;
-    int y;
+    float x;
+    float y;
 
-    void add(const Vec2& other) {
-        x += other.x;
-        y += other.y;
+    void add(const Vec2& other, float deltaTime) {
+        x += other.x * deltaTime;
+        y += other.y * deltaTime;
     }
 
     void print() const {
@@ -35,22 +33,19 @@ struct GameObject {
         std::cout << "\n";
     }
 
-    void update() { position.add(velocity); }
+    void update(float deltaTime) { position.add(velocity, deltaTime); }
 };
 
 struct Engine {
     bool isRunning;
     int frame;      // current frame count
-    int maxFrames;  // configuration   
+    int maxFrames;  // configuration
+    float deltaTime;
     std::array<GameObject, objectCount> objects;
-
-    void initialize() {
-        isRunning = true;
-        frame = 0;
-        maxFrames = 3;
-
-        objects[0] = {"Player", {0, 0}, {1, 0}};
-        objects[1] = {"Enemy", {10, 5}, {0, 1}};
+    
+    Engine() : isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f) {
+        objects[0] = {"Player", {0.0f, 0.0f}, {1.0f, 0.0f}};
+        objects[1] = {"Enemy", {10.0f, 5.0f}, {0.0f, 1.0f}};
     }
 
     void updateState() {
@@ -65,9 +60,13 @@ struct Engine {
         return isRunning;
     }
 
+    void input() {
+        std::cout << "Handling input...\n";
+    }
+
     void updateObjects() {
         for (GameObject& object : objects) {
-            updateSystem(object);
+            updateSystem(object, deltaTime);
         }
     }
 
@@ -85,36 +84,28 @@ struct Engine {
         renderObjects();
         std::cout << "---\n";
     }
+
+    void run() {
+        while (running()) {
+            processFrame();
+            updateState();
+        }
+        
+        std::cout << "Engine stopped.\n";
+    }
 };
 
-void runEngine();
-
 int main() {
-    runEngine();
+    Engine engine;
+    engine.run();
+    
     return 0;
 }
 
-void input() {
-    std::cout << "Handling input...\n";
-}
-
-void updateSystem(GameObject& gameObject) {
-    gameObject.update();
+void updateSystem(GameObject& gameObject, float deltaTime) {
+    gameObject.update(deltaTime);
 }
 
 void renderSystem(const GameObject& gameObject) {
     gameObject.print();
-}
-
-void runEngine() {
-    Engine engine;
-
-    engine.initialize();
-
-    while (engine.running()) {
-        engine.processFrame();
-        engine.updateState();
-    }
-
-    std::cout << "Engine stopped.\n";
 }
