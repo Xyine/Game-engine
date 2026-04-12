@@ -4,11 +4,25 @@
 const int objectCount = 2;
 
 struct GameObject;
+struct Bounds;
 
 void movementSystem(GameObject& gameObject, float deltaTime);
 void physicsSystem(GameObject& gameObject, float deltaTime);
-void boundarySystem(GameObject& gameObject, float minX, float maxX, float minY, float maxY);
+void handleXBounds(GameObject& gameObject, const Bounds& bounds);
+void handleYBounds(GameObject& gameObject, const Bounds& bounds);
+void boundarySystem(GameObject& gameObject, const Bounds& bounds);
 void renderSystem(const GameObject& gameObject);
+
+struct Bounds {
+    float minX;
+    float maxX;
+    float minY;
+    float maxY;
+
+    void print() const {
+        std::cout << "[minX: " << minX << ", maxX: " << maxX << ", minY: " << minY << ", maxY: " << maxY <<"]";
+    }
+};
 
 struct Vec2 {
     float x;
@@ -26,12 +40,15 @@ struct Vec2 {
 
 struct GameObject {
     const char* name;
+    Vec2 size;
     Vec2 position;
     Vec2 velocity;
     Vec2 acceleration;
 
     void print() const {
-        std::cout << name << " position: ";
+        std::cout << name << " size: ";
+        size.print();
+        std::cout << ", position: ";
         position.print();
         std::cout << ", velocity: ";
         velocity.print();
@@ -48,15 +65,12 @@ struct Engine {
     int frame;      // current frame count
     int maxFrames;  // configuration
     float deltaTime;
-    float minX;
-    float maxX;
-    float minY;
-    float maxY;
+    Bounds worldBounds;
     std::array<GameObject, objectCount> objects;
     
-    Engine() : isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), minX(0.0f), maxX(3.0f), minY(0.0f), maxY(6.0f) {
-        objects[0] = {"Player", {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}};
-        objects[1] = {"Enemy", {10.0f, 5.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
+    Engine() : isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 3.0f, 0.0f, 6.0f} {
+        objects[0] = {"Player", {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}};
+        objects[1] = {"Enemy", {1.0f, 1.0f}, {10.0f, 5.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
     }
 
     void updateState() {
@@ -79,7 +93,7 @@ struct Engine {
         for (GameObject& object : objects) {
             physicsSystem(object, deltaTime);
             movementSystem(object, deltaTime);
-            boundarySystem(object, minX, maxX, minY, maxY);
+            boundarySystem(object, worldBounds);
         }
     }
 
@@ -91,6 +105,9 @@ struct Engine {
 
     void processFrame() {
         input();
+        std::cout << "World bounds: ";
+        worldBounds.print();
+        std::cout << "\n";
         std::cout << "Updating frame...\n";
         updateObjects();
         std::cout << "Rendering frame...\n";
@@ -123,21 +140,29 @@ void physicsSystem(GameObject& gameObject, float deltaTime) {
     gameObject.velocity.add(gameObject.acceleration, deltaTime);
 }
 
-void boundarySystem(GameObject& gameObject, float minX, float maxX, float minY, float maxY) {
-    if (gameObject.position.x > maxX) {
-        gameObject.position.x = maxX;
+void handleXBounds(GameObject& gameObject, const Bounds& bounds) {
+    if (gameObject.position.x + gameObject.size.x > bounds.maxX) {
+        gameObject.position.x = bounds.maxX - gameObject.size.x;
         gameObject.velocity.x = -gameObject.velocity.x;
-    } else if (gameObject.position.x < minX) {
-        gameObject.position.x = minX;
+    } else if (gameObject.position.x < bounds.minX) {
+        gameObject.position.x = bounds.minX;
         gameObject.velocity.x = -gameObject.velocity.x;
     }
-    if (gameObject.position.y > maxY) {
-        gameObject.position.y = maxY;
+}
+
+void handleYBounds(GameObject& gameObject, const Bounds& bounds) {
+    if (gameObject.position.y + gameObject.size.y > bounds.maxY) {
+        gameObject.position.y = bounds.maxY - gameObject.size.y;
         gameObject.velocity.y = -gameObject.velocity.y;
-    } else if (gameObject.position.y < minY) {
-        gameObject.position.y = minY;
+    } else if (gameObject.position.y < bounds.minY) {
+        gameObject.position.y = bounds.minY;
         gameObject.velocity.y = -gameObject.velocity.y;
     }
+}
+
+void boundarySystem(GameObject& gameObject, const Bounds& bounds) {
+    handleXBounds(gameObject, bounds);
+    handleYBounds(gameObject, bounds);
 }
 
 void renderSystem(const GameObject& gameObject) {
