@@ -3,16 +3,6 @@
 
 const int objectCount = 2;
 
-struct GameObject;
-struct Bounds;
-
-void movementSystem(GameObject& gameObject, float deltaTime);
-void physicsSystem(GameObject& gameObject, float deltaTime);
-void handleXBounds(GameObject& gameObject, const Bounds& bounds);
-void handleYBounds(GameObject& gameObject, const Bounds& bounds);
-void boundarySystem(GameObject& gameObject, const Bounds& bounds);
-void renderSystem(const GameObject& gameObject);
-
 struct Bounds {
     float minX;
     float maxX;
@@ -20,7 +10,11 @@ struct Bounds {
     float maxY;
 
     void print() const {
-        std::cout << "[minX: " << minX << ", maxX: " << maxX << ", minY: " << minY << ", maxY: " << maxY <<"]";
+        std::cout << "[minX: " << minX 
+                  << ", maxX: " << maxX 
+                  << ", minY: " << minY 
+                  << ", maxY: " << maxY 
+                  << "]";
     }
 };
 
@@ -50,6 +44,8 @@ struct GameObject {
         size.print();
         std::cout << ", position: ";
         position.print();
+        std::cout << ", center: ";
+        center().print();
         std::cout << ", velocity: ";
         velocity.print();
         std::cout << ", acceleration: ";
@@ -58,7 +54,21 @@ struct GameObject {
     }
 
     void move(float deltaTime) { position.add(velocity, deltaTime); }
+
+    Vec2 center() const {
+        return Vec2{position.x + size.x / 2.0f, position.y + size.y / 2.0f};
+    }
 };
+
+void movementSystem(GameObject& gameObject, float deltaTime);
+void physicsSystem(GameObject& gameObject, float deltaTime);
+void handleXBounds(GameObject& gameObject, const Bounds& bounds);
+void handleYBounds(GameObject& gameObject, const Bounds& bounds);
+bool isOverlappingX(const GameObject& a, const GameObject& b);
+bool isOverlappingY(const GameObject& a, const GameObject& b);
+bool isColliding(const GameObject& a, const GameObject& b);
+void boundarySystem(GameObject& gameObject, const Bounds& bounds);
+void renderSystem(const GameObject& gameObject);
 
 struct Engine {
     bool isRunning;
@@ -70,7 +80,7 @@ struct Engine {
     
     Engine() : isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 3.0f, 0.0f, 6.0f} {
         objects[0] = {"Player", {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}};
-        objects[1] = {"Enemy", {1.0f, 1.0f}, {10.0f, 5.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
+        objects[1] = {"Enemy", {1.0f, 1.0f}, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
     }
 
     void updateState() {
@@ -104,12 +114,21 @@ struct Engine {
     }
 
     void processFrame() {
+        std::cout << "Frame " << frame << "\n";
         input();
         std::cout << "World bounds: ";
         worldBounds.print();
         std::cout << "\n";
         std::cout << "Updating frame...\n";
         updateObjects();
+        std::cout << "Checking collision between Player and Enemy...";
+        if (isColliding(objects[0], objects[1])) {
+            std::cout << "Collision detected between "
+                      << objects[0].name
+                      << " and "
+                      << objects[1].name
+                      << "\n";
+        }
         std::cout << "Rendering frame...\n";
         renderObjects();
         std::cout << "---\n";
@@ -158,6 +177,28 @@ void handleYBounds(GameObject& gameObject, const Bounds& bounds) {
         gameObject.position.y = bounds.minY;
         gameObject.velocity.y = -gameObject.velocity.y;
     }
+}
+
+bool isOverlappingX(const GameObject& a, const GameObject& b) {
+    float aLeft = a.position.x;
+    float aRight = a.position.x + a.size.x;
+    float bLeft = b.position.x;
+    float bRight = b.position.x + b.size.x;
+
+    return aLeft < bRight && aRight > bLeft;
+}
+
+bool isOverlappingY(const GameObject& a, const GameObject& b) {
+    float aBottom = a.position.y;
+    float aTop = a.position.y + a.size.y;
+    float bBottom = b.position.y;
+    float bTop = b.position.y + b.size.y;
+
+    return aBottom < bTop && aTop > bBottom;
+}
+
+bool isColliding(const GameObject& a, const GameObject& b) {
+    return isOverlappingX(a, b) && isOverlappingY(a, b);
 }
 
 void boundarySystem(GameObject& gameObject, const Bounds& bounds) {
