@@ -27,6 +27,14 @@ struct Vec2 {
         y += other.y * deltaTime;
     }
 
+    Vec2 add(const Vec2& other) const {
+        return Vec2{x + other.x, y + other.y};
+    }
+
+    Vec2 scale(float scalar) const {
+        return Vec2{x * scalar, y * scalar};
+    }
+
     void print() const {
         std::cout << "(" << x << ", " << y << ")";
     }
@@ -46,6 +54,8 @@ struct GameObject {
         position.print();
         std::cout << ", center: ";
         center().print();
+        std::cout << ", bounds: ";
+        printBounds();
         std::cout << ", velocity: ";
         velocity.print();
         std::cout << ", acceleration: ";
@@ -53,18 +63,35 @@ struct GameObject {
         std::cout << "\n";
     }
 
-    void move(float deltaTime) { position.add(velocity, deltaTime); }
+    void move(float deltaTime) {
+        Vec2 deltaPosition = velocity.scale(deltaTime);
+        position = position.add(deltaPosition); 
+    }
 
     Vec2 center() const {
         return Vec2{position.x + size.x / 2.0f, position.y + size.y / 2.0f};
     }
+
+    float left() const { return position.x; }
+
+    float right() const { return position.x + size.x; }
+    
+    float bottom() const { return position.y; }
+    
+    float top() const { return position.y + size.y; }
+
+    void printBounds() const {
+        std::cout << "[left: " << left() 
+            << ", right: " << right() 
+            << ", bottom: " << bottom() 
+            << ", top: " << top() 
+            << "]";
+    }   
 };
 
-void movementSystem(GameObject& gameObject, float deltaTime);
-void physicsSystem(GameObject& gameObject, float deltaTime);
+
 void handleXBounds(GameObject& gameObject, const Bounds& bounds);
 void handleYBounds(GameObject& gameObject, const Bounds& bounds);
-void boundarySystem(GameObject& gameObject, const Bounds& bounds);
 bool isOverlappingX(const GameObject& a, const GameObject& b);
 bool isOverlappingY(const GameObject& a, const GameObject& b);
 bool isColliding(const GameObject& a, const GameObject& b);
@@ -102,14 +129,6 @@ struct Engine {
         std::cout << "Handling input...\n";
     }
 
-    void updateObjects() {
-        for (GameObject& object : objects) {
-            physicsSystem(object, deltaTime);
-            movementSystem(object, deltaTime);
-            boundarySystem(object, worldBounds);
-        }
-    }
-
     void renderObjects() const {
         for (const GameObject& object : objects) {
             renderSystem(object);
@@ -117,30 +136,74 @@ struct Engine {
     }
 
     bool firstTwoObjectsAreColliding() const {
-        return isColliding(objects[0], objects[1]);
+        return areObjectsColliding(0, 1);
     }
 
-    void processFrame() {
-        std::cout << "Frame " << frame << "\n";
-        input();
-        std::cout << "World bounds: ";
-        worldBounds.print();
-        std::cout << "\n";
-        std::cout << "Updating frame...\n";
-        updateObjects();
-        std::cout << "Checking collision between " 
-                  << objects[0].name 
-                  << " and " 
-                  << objects[1].name 
-                  << "...\n";
+    void handleCollisionBetweenFirstTwo() {
+        resolveObjectsCollision(0, 1);
+    }
+
+    void collisionSystem() {
+        std::cout << "Checking collision between " // TEMPORARY
+            << objects[0].name 
+            << " and " 
+            << objects[1].name 
+            << "...\n";
         if (firstTwoObjectsAreColliding()) {
             std::cout << "Collision detected between "
                       << objects[0].name
                       << " and "
                       << objects[1].name
                       << "\n";
-            resolveCollision(objects[0], objects[1]);
+            handleCollisionBetweenFirstTwo();
         }
+    }
+
+    bool areObjectsColliding(int i, int j) const {
+        return isColliding(objects[i], objects[j]);
+    }
+
+    void resolveObjectsCollision(int i, int j) {
+        resolveCollision(objects[i], objects[j]);
+    }
+
+    void physicsSystem() {
+        for (GameObject& object : objects) {
+            Vec2 deltaVelocity = object.acceleration.scale(deltaTime);
+            object.velocity = object.velocity.add(deltaVelocity);
+        }
+    }
+
+    void movementSystem() {
+        for (GameObject& object : objects) {
+            object.move(deltaTime);
+        }
+    }
+    
+    void boundarySystem() {
+        for (GameObject& object : objects) {
+            handleXBounds(object, worldBounds);
+            handleYBounds(object, worldBounds);
+        }
+    }
+
+    void updateObjects() {
+        physicsSystem();
+        movementSystem();
+        boundarySystem();
+    }
+
+    void update() {
+        input();
+        std::cout << "World bounds: ";
+        worldBounds.print();
+        std::cout << "\n";
+        std::cout << "Updating frame...\n";
+        updateObjects();
+        collisionSystem();
+    }
+
+    void render() const {
         std::cout << "Rendering frame...\n";
         renderObjects();
         std::cout << "---\n";
@@ -148,7 +211,9 @@ struct Engine {
 
     void run() {
         while (running()) {
-            processFrame();
+            std::cout << "Frame " << frame << "\n";
+            update();
+            render();
             updateState();
         }
         
@@ -163,55 +228,32 @@ int main() {
     return 0;
 }
 
-void movementSystem(GameObject& gameObject, float deltaTime) {
-    gameObject.move(deltaTime);
-}
-
-void physicsSystem(GameObject& gameObject, float deltaTime) {
-    gameObject.velocity.add(gameObject.acceleration, deltaTime);
-}
-
 void handleXBounds(GameObject& gameObject, const Bounds& bounds) {
-    if (gameObject.position.x + gameObject.size.x > bounds.maxX) {
+    if (gameObject.right() > bounds.maxX) {
         gameObject.position.x = bounds.maxX - gameObject.size.x;
         gameObject.velocity.x = -gameObject.velocity.x;
-    } else if (gameObject.position.x < bounds.minX) {
+    } else if (gameObject.left() < bounds.minX) {
         gameObject.position.x = bounds.minX;
         gameObject.velocity.x = -gameObject.velocity.x;
     }
 }
 
 void handleYBounds(GameObject& gameObject, const Bounds& bounds) {
-    if (gameObject.position.y + gameObject.size.y > bounds.maxY) {
+    if (gameObject.top() > bounds.maxY) {
         gameObject.position.y = bounds.maxY - gameObject.size.y;
         gameObject.velocity.y = -gameObject.velocity.y;
-    } else if (gameObject.position.y < bounds.minY) {
+    } else if (gameObject.bottom() < bounds.minY) {
         gameObject.position.y = bounds.minY;
         gameObject.velocity.y = -gameObject.velocity.y;
     }
 }
 
-void boundarySystem(GameObject& gameObject, const Bounds& bounds) {
-    handleXBounds(gameObject, bounds);
-    handleYBounds(gameObject, bounds);
-}
-
 bool isOverlappingX(const GameObject& a, const GameObject& b) {
-    float aLeft = a.position.x;
-    float aRight = a.position.x + a.size.x;
-    float bLeft = b.position.x;
-    float bRight = b.position.x + b.size.x;
-
-    return aLeft < bRight && aRight > bLeft;
+    return a.left() < b.right() && a.right() > b.left();
 }
 
 bool isOverlappingY(const GameObject& a, const GameObject& b) {
-    float aBottom = a.position.y;
-    float aTop = a.position.y + a.size.y;
-    float bBottom = b.position.y;
-    float bTop = b.position.y + b.size.y;
-
-    return aBottom < bTop && aTop > bBottom;
+    return a.bottom() < b.top() && a.top() > b.bottom();
 }
 
 bool isColliding(const GameObject& a, const GameObject& b) {
@@ -228,7 +270,7 @@ void resolveCollisionY(GameObject& a, GameObject& b) {
     b.velocity.y = -b.velocity.y;
 }
 
-void resolveCollision(GameObject& a, GameObject& b) {
+void resolveCollision(GameObject& a, GameObject& b) { // TEMPORARY
     resolveCollisionX(a, b);
     resolveCollisionY(a, b);
 }
