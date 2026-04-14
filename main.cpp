@@ -1,5 +1,6 @@
 #include <iostream>
 #include <array>
+#include <algorithm>
 
 const int objectCount = 2;
 
@@ -95,6 +96,10 @@ void handleYBounds(GameObject& gameObject, const Bounds& bounds);
 bool isOverlappingX(const GameObject& a, const GameObject& b);
 bool isOverlappingY(const GameObject& a, const GameObject& b);
 bool isColliding(const GameObject& a, const GameObject& b);
+float overlapX(const GameObject& a, const GameObject& b);
+float overlapY(const GameObject& a, const GameObject& b);
+void separateObjectsX(GameObject& a, GameObject& b);
+void separateObjectsY(GameObject& a, GameObject& b);
 void resolveCollisionX(GameObject& a, GameObject& b);
 void resolveCollisionY(GameObject& a, GameObject& b);
 void resolveCollision(GameObject& a, GameObject& b);
@@ -109,7 +114,7 @@ struct Engine {
     std::array<GameObject, objectCount> objects;
     
     Engine() : isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 3.0f, 0.0f, 6.0f} {
-        objects[0] = {"Player", {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}};
+        objects[0] = {"Player", {1.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
         objects[1] = {"Enemy", {1.0f, 1.0f}, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
     }
 
@@ -135,36 +140,35 @@ struct Engine {
         }
     }
 
-    bool firstTwoObjectsAreColliding() const {
-        return areObjectsColliding(0, 1);
-    }
-
-    void handleCollisionBetweenFirstTwo() {
-        resolveObjectsCollision(0, 1);
-    }
-
-    void collisionSystem() {
-        std::cout << "Checking collision between " // TEMPORARY
-            << objects[0].name 
-            << " and " 
-            << objects[1].name 
-            << "...\n";
-        if (firstTwoObjectsAreColliding()) {
-            std::cout << "Collision detected between "
-                      << objects[0].name
-                      << " and "
-                      << objects[1].name
-                      << "\n";
-            handleCollisionBetweenFirstTwo();
-        }
-    }
-
     bool areObjectsColliding(int i, int j) const {
         return isColliding(objects[i], objects[j]);
     }
 
     void resolveObjectsCollision(int i, int j) {
         resolveCollision(objects[i], objects[j]);
+    }
+
+    void collisionSystemAllPairs() {
+        for (int i = 0; i < objectCount; i++) {
+            for (int j = i + 1; j < objectCount; j++) { 
+                std::cout 
+                << "Checking collision between "
+                << objects[i].name
+                << " and "
+                << objects[j].name
+                << "...\n";
+
+                if (areObjectsColliding(i, j)) {
+                    std::cout 
+                    << "Collision detected between "
+                    << objects[i].name
+                    << " and "
+                    << objects[j].name
+                    << "\n";
+                    resolveObjectsCollision(i, j);
+                }
+            }
+        }
     }
 
     void physicsSystem() {
@@ -200,7 +204,8 @@ struct Engine {
         std::cout << "\n";
         std::cout << "Updating frame...\n";
         updateObjects();
-        collisionSystem();
+        collisionSystemAllPairs();
+        boundarySystem();
     }
 
     void render() const {
@@ -260,19 +265,56 @@ bool isColliding(const GameObject& a, const GameObject& b) {
     return isOverlappingX(a, b) && isOverlappingY(a, b);
 }
 
+float overlapX(const GameObject& a, const GameObject& b) {
+    return std::min(a.right(), b.right()) - std::max(a.left(), b.left());
+}
+
+float overlapY(const GameObject& a, const GameObject& b) {
+    return std::min(a.top(), b.top()) - std::max(a.bottom(), b.bottom());
+}
+
 void resolveCollisionX(GameObject& a, GameObject& b) {
     a.velocity.x = -a.velocity.x;
     b.velocity.x = -b.velocity.x;
+    separateObjectsX(a, b);
 }
 
 void resolveCollisionY(GameObject& a, GameObject& b) {
     a.velocity.y = -a.velocity.y;
     b.velocity.y = -b.velocity.y;
+    separateObjectsY(a, b);
+}
+
+void separateObjectsX(GameObject& a, GameObject& b) {
+    float xOverlap = overlapX(a, b);
+    if (a.center().x < b.center().x) {
+        a.position.x = a.position.x - xOverlap / 2.0f;
+        b.position.x = b.position.x + xOverlap / 2.0f;
+    } else {
+        a.position.x = a.position.x + xOverlap / 2.0f;
+        b.position.x = b.position.x - xOverlap / 2.0f;
+    }
+}
+
+void separateObjectsY(GameObject& a, GameObject& b) {
+    float yOverlap = overlapY(a, b);
+    if (a.center().y < b.center().y) {
+        a.position.y = a.position.y - yOverlap / 2.0f;
+        b.position.y = b.position.y + yOverlap / 2.0f;
+    } else {
+        a.position.y = a.position.y + yOverlap / 2.0f;
+        b.position.y = b.position.y - yOverlap / 2.0f;
+    }
 }
 
 void resolveCollision(GameObject& a, GameObject& b) { // TEMPORARY
-    resolveCollisionX(a, b);
-    resolveCollisionY(a, b);
+    float xOverlap = overlapX(a, b);
+    float yOverlap = overlapY(a, b);
+    if (xOverlap < yOverlap) {
+        resolveCollisionX(a, b);
+    } else {
+        resolveCollisionY(a, b);
+    }    
 }
 
 void renderSystem(const GameObject& gameObject) {
