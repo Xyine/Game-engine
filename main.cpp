@@ -194,7 +194,6 @@ struct Engine {
     void updateObjects() {
         physicsSystem();
         movementSystem();
-        boundarySystem();
     }
 
     void update() {
@@ -287,7 +286,9 @@ void resolveCollisionY(GameObject& a, GameObject& b) {
 
 void separateObjectsX(GameObject& a, GameObject& b) {
     float xOverlap = overlapX(a, b);
-    if (a.center().x < b.center().x) {
+    float aCenterX = a.center().x;
+    float bCenterX = b.center().x;
+    if (aCenterX < bCenterX) {
         a.position.x = a.position.x - xOverlap / 2.0f;
         b.position.x = b.position.x + xOverlap / 2.0f;
     } else {
@@ -298,7 +299,9 @@ void separateObjectsX(GameObject& a, GameObject& b) {
 
 void separateObjectsY(GameObject& a, GameObject& b) {
     float yOverlap = overlapY(a, b);
-    if (a.center().y < b.center().y) {
+    float aCenterY = a.center().y;
+    float bCenterY = b.center().y;
+    if (aCenterY < bCenterY) {
         a.position.y = a.position.y - yOverlap / 2.0f;
         b.position.y = b.position.y + yOverlap / 2.0f;
     } else {
@@ -307,6 +310,7 @@ void separateObjectsY(GameObject& a, GameObject& b) {
     }
 }
 
+// choose the axis with the least overlap
 void resolveCollision(GameObject& a, GameObject& b) { // TEMPORARY
     float xOverlap = overlapX(a, b);
     float yOverlap = overlapY(a, b);
