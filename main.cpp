@@ -1,95 +1,11 @@
 #include <iostream>
 #include <array>
 #include <algorithm>
+#include "Vec2.h"
+#include "Bounds.h"
+#include "GameObject.h"
 
 const int objectCount = 2;
-
-struct Bounds {
-    float minX;
-    float maxX;
-    float minY;
-    float maxY;
-
-    void print() const {
-        std::cout << "[minX: " << minX 
-                  << ", maxX: " << maxX 
-                  << ", minY: " << minY 
-                  << ", maxY: " << maxY 
-                  << "]";
-    }
-};
-
-struct Vec2 {
-    float x;
-    float y;
-
-    void add(const Vec2& other, float deltaTime) {
-        x += other.x * deltaTime;
-        y += other.y * deltaTime;
-    }
-
-    Vec2 add(const Vec2& other) const {
-        return Vec2{x + other.x, y + other.y};
-    }
-
-    Vec2 scale(float scalar) const {
-        return Vec2{x * scalar, y * scalar};
-    }
-
-    void print() const {
-        std::cout << "(" << x << ", " << y << ")";
-    }
-};
-
-struct GameObject {
-    const char* name;
-    Vec2 size;
-    Vec2 position;
-    Vec2 velocity;
-    Vec2 acceleration;
-
-    void print() const {
-        std::cout << name << " size: ";
-        size.print();
-        std::cout << ", position: ";
-        position.print();
-        std::cout << ", center: ";
-        center().print();
-        std::cout << ", bounds: ";
-        printBounds();
-        std::cout << ", velocity: ";
-        velocity.print();
-        std::cout << ", acceleration: ";
-        acceleration.print();
-        std::cout << "\n";
-    }
-
-    void move(float deltaTime) {
-        Vec2 deltaPosition = velocity.scale(deltaTime);
-        position = position.add(deltaPosition); 
-    }
-
-    Vec2 center() const {
-        return Vec2{position.x + size.x / 2.0f, position.y + size.y / 2.0f};
-    }
-
-    float left() const { return position.x; }
-
-    float right() const { return position.x + size.x; }
-    
-    float bottom() const { return position.y; }
-    
-    float top() const { return position.y + size.y; }
-
-    void printBounds() const {
-        std::cout << "[left: " << left() 
-            << ", right: " << right() 
-            << ", bottom: " << bottom() 
-            << ", top: " << top() 
-            << "]";
-    }   
-};
-
 
 void handleXBounds(GameObject& gameObject, const Bounds& bounds);
 void handleYBounds(GameObject& gameObject, const Bounds& bounds);
