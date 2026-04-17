@@ -6,12 +6,13 @@ struct Bounds {
     float maxX;
     float minY;
     float maxY;
-
-    void print() const {
-        std::cout << "[minX: " << minX 
-                  << ", maxX: " << maxX 
-                  << ", minY: " << minY 
-                  << ", maxY: " << maxY 
-                  << "]";
-    }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Bounds& bounds) {
+    os << "[minX: " << bounds.minX 
+                  << ", maxX: " << bounds.maxX 
+                  << ", minY: " << bounds.minY 
+                  << ", maxY: " << bounds.maxY 
+                  << "]";
+    return os;
+}

@@ -17,8 +17,9 @@ struct Vec2 {
     Vec2 scale(float scalar) const {
         return Vec2{x * scalar, y * scalar};
     }
-
-    void print() const {
-        std::cout << "(" << x << ", " << y << ")";
-    }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Vec2& vec) {
+    os << "(" << vec.x << ", " << vec.y << ")";
+    return os;
+}

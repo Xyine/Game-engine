@@ -86,9 +86,7 @@ void Engine::updateObjects() {
 
 void Engine::update() {
     input();
-    std::cout << "World bounds: ";
-    worldBounds.print();
-    std::cout << "\n";
+    std::cout << "World bounds: " << worldBounds << "\n";
     std::cout << "Updating frame...\n";
     updateObjects();
     collisionSystemAllPairs();

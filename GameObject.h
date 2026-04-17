@@ -9,22 +9,6 @@ struct GameObject {
     Vec2 velocity;
     Vec2 acceleration;
 
-    void print() const {
-        std::cout << name << " size: ";
-        size.print();
-        std::cout << ", position: ";
-        position.print();
-        std::cout << ", center: ";
-        center().print();
-        std::cout << ", bounds: ";
-        printBounds();
-        std::cout << ", velocity: ";
-        velocity.print();
-        std::cout << ", acceleration: ";
-        acceleration.print();
-        std::cout << "\n";
-    }
-
     void move(float deltaTime) {
         Vec2 deltaPosition = velocity.scale(deltaTime);
         position = position.add(deltaPosition); 
@@ -42,11 +26,20 @@ struct GameObject {
     
     float top() const { return position.y + size.y; }
 
-    void printBounds() const {
-        std::cout << "[left: " << left() 
-            << ", right: " << right() 
-            << ", bottom: " << bottom() 
-            << ", top: " << top() 
-            << "]";
-    }   
 };
+
+inline std::ostream& operator<<(std::ostream& os, const GameObject& gameObject) {
+    os << gameObject.name << " size: " << gameObject.size
+    << ", position: " << gameObject.position
+    << ", center: " << gameObject.center()
+    << ", bounds: "
+    << "[left: " << gameObject.left() 
+    << ", right: " << gameObject.right() 
+    << ", bottom: " << gameObject.bottom() 
+    << ", top: " << gameObject.top() 
+    << "]"
+    << ", velocity: " << gameObject.velocity
+    << ", acceleration: " << gameObject.acceleration;
+
+    return os;
+}
