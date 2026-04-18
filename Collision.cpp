@@ -89,7 +89,3 @@ void resolveCollision(GameObject& a, GameObject& b) { // TEMPORARY
         resolveCollisionY(a, b);
     }    
 }
-
-void renderSystem(const GameObject& gameObject) {
-    std::cout << gameObject << "\n";
-}

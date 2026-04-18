@@ -2,9 +2,16 @@
 #include <iostream>
 #include "Vec2.h"
 
+enum class ShapeType {
+    Rectangle,
+    Circle
+};
+
 struct GameObject {
     const char* name;
+    ShapeType shapeType;
     Vec2 size;
+    float radius;
     Vec2 position;
     Vec2 velocity;
     Vec2 acceleration;

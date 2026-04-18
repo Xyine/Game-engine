@@ -2,9 +2,10 @@
 #include <array>
 #include "Collision.h"
 
-const int objectCount = 2;
+const int objectCount = 3;
 
 struct Engine {
+    bool debugEnabled;
     bool isRunning;
     int frame;      // current frame count
     int maxFrames;  // configuration

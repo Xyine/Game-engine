@@ -1,10 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include "Engine.h"
+#include "Render.h"
+#include "Input.h"
 
 int main()
 {
     Engine engine;
-
+    engine.debugEnabled = false;
+    
     float scale = 100.f;
     float windowHeight = 600.f;
 
@@ -12,10 +15,12 @@ int main()
     window.setVerticalSyncEnabled(true);
 
     sf::RectangleShape player;
-    player.setSize({
-        engine.objects[0].size.x * scale,
-        engine.objects[0].size.y * scale
-    });
+    player.setFillColor(sf::Color::Green);
+    player.setSize(worldToScreenSize(engine.objects[0], scale));
+
+    sf::RectangleShape enemy;
+    enemy.setFillColor(sf::Color::Red);
+    enemy.setSize(worldToScreenSize(engine.objects[1], scale));
 
     sf::Clock clock;
 
@@ -31,32 +36,16 @@ int main()
                 window.close();
         }
 
-        engine.objects[0].velocity = {0.f, 0.f};
+        updatePlayerInput(engine.objects[0]);
 
-        float speed = 3.0f;
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            engine.objects[0].velocity.x = -speed;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            engine.objects[0].velocity.x = speed;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            engine.objects[0].velocity.y = speed;
-        }   
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            engine.objects[0].velocity.y = -speed;
-        }
+        engine.update();
         
-        engine.updateObjects();
-
-        player.setPosition(
-            engine.objects[0].position.x * scale,
-            windowHeight - (engine.objects[0].position.y + engine.objects[0].size.y) * scale
-        );
+        player.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
+        enemy.setPosition(worldToScreenPosition(engine.objects[1], scale, windowHeight));
 
         window.clear();
         window.draw(player);
+        window.draw(enemy);
         window.display();
     }
 

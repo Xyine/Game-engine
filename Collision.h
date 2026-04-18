@@ -14,4 +14,3 @@ void separateObjectsY(GameObject& a, GameObject& b);
 void resolveCollisionX(GameObject& a, GameObject& b);
 void resolveCollisionY(GameObject& a, GameObject& b);
 void resolveCollision(GameObject& a, GameObject& b);
-void renderSystem(const GameObject& gameObject);

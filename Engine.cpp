@@ -1,9 +1,10 @@
 #include <iostream>
 #include "Engine.h"
 
-Engine::Engine() : isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 3.0f, 0.0f, 6.0f} {
-    objects[0] = {"Player", {1.0f, 1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
-    objects[1] = {"Enemy", {1.0f, 1.0f}, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
+Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {
+    objects[0] = {"Player", ShapeType::Rectangle, {1.0f, 1.0f}, 0.0f, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
+    objects[1] = {"Enemy", ShapeType::Rectangle, {1.0f, 1.0f}, 0.0f, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
+    objects[3] = {"Ball", ShapeType::Circle, {0.0f, 0.0f}, 1.0f, {4.0f, 3.0f}, {0.0f, 0.0f}, {0.0f, 1.0f}};
 }
 
 void Engine::updateState() {
@@ -19,12 +20,14 @@ bool Engine::running() const {
 }
 
 void Engine::input() {
-    std::cout << "Handling input...\n";
+    if (debugEnabled) {
+        std::cout << "Handling input...\n";
+    }
 }
 
 void Engine::renderObjects() const {
     for (const GameObject& object : objects) {
-        renderSystem(object);
+        std::cout << object << "\n";
     }
 }
 
@@ -38,21 +41,24 @@ void Engine::resolveObjectsCollision(int i, int j) {
 
 void Engine::collisionSystemAllPairs() {
     for (int i = 0; i < objectCount; i++) {
-        for (int j = i + 1; j < objectCount; j++) { 
-            std::cout 
-            << "Checking collision between "
-            << objects[i].name
-            << " and "
-            << objects[j].name
-            << "...\n";
-
-            if (areObjectsColliding(i, j)) {
+        for (int j = i + 1; j < objectCount; j++) {
+            if (debugEnabled) {
                 std::cout 
-                << "Collision detected between "
+                << "Checking collision between "
                 << objects[i].name
                 << " and "
                 << objects[j].name
-                << "\n";
+                << "...\n";
+            }
+            if (areObjectsColliding(i, j)) {
+                if (debugEnabled) {
+                    std::cout 
+                    << "Collision detected between "
+                    << objects[i].name
+                    << " and "
+                    << objects[j].name
+                    << "\n";
+                }
                 resolveObjectsCollision(i, j);
             }
         }
@@ -86,26 +92,33 @@ void Engine::updateObjects() {
 
 void Engine::update() {
     input();
-    std::cout << "World bounds: " << worldBounds << "\n";
-    std::cout << "Updating frame...\n";
+    if (debugEnabled) {
+        std::cout << "World bounds: " << worldBounds << "\n";
+        std::cout << "Updating frame...\n";
+    }
     updateObjects();
     collisionSystemAllPairs();
     boundarySystem();
 }
 
 void Engine::render() const {
-    std::cout << "Rendering frame...\n";
-    renderObjects();
-    std::cout << "---\n";
+    if (debugEnabled) {
+        std::cout << "Rendering frame...\n";
+        renderObjects();
+        std::cout << "---\n";
+    }
 }
 
 void Engine::run() {
     while (running()) {
-        std::cout << "Frame " << frame << "\n";
+        if (debugEnabled) {
+            std::cout << "Frame " << frame << "\n";
+        }
         update();
         render();
         updateState();
     }
-    
-    std::cout << "Engine stopped.\n";
+    if (debugEnabled) {
+        std::cout << "Engine stopped.\n";
+    }
 }
