@@ -22,6 +22,10 @@ int main()
     enemy.setFillColor(sf::Color::Red);
     enemy.setSize(worldToScreenSize(engine.objects[1], scale));
 
+    sf::CircleShape ball;
+    ball.setFillColor(sf::Color::Blue);
+    ball.setRadius(worldToScreenRadius(engine.objects[2], scale));
+
     sf::Clock clock;
 
     while (window.isOpen())
@@ -42,10 +46,12 @@ int main()
         
         player.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
         enemy.setPosition(worldToScreenPosition(engine.objects[1], scale, windowHeight));
+        ball.setPosition(worldToScreenPosition(engine.objects[2], scale, windowHeight));
 
         window.clear();
         window.draw(player);
         window.draw(enemy);
+        window.draw(ball);
         window.display();
     }
 

@@ -3,20 +3,28 @@
 
 void handleXBounds(GameObject& gameObject, const Bounds& bounds) {
     if (gameObject.right() > bounds.maxX) {
-        gameObject.position.x = bounds.maxX - gameObject.size.x;
+        gameObject.position.x = (gameObject.shapeType == ShapeType::Rectangle)
+            ? bounds.maxX - gameObject.size.x
+            : bounds.maxX - gameObject.radius;
         gameObject.velocity.x = -gameObject.velocity.x;
     } else if (gameObject.left() < bounds.minX) {
-        gameObject.position.x = bounds.minX;
+        gameObject.position.x = (gameObject.shapeType == ShapeType::Rectangle)
+            ? bounds.minX
+            : bounds.minX + gameObject.radius;
         gameObject.velocity.x = -gameObject.velocity.x;
     }
 }
 
 void handleYBounds(GameObject& gameObject, const Bounds& bounds) {
     if (gameObject.top() > bounds.maxY) {
-        gameObject.position.y = bounds.maxY - gameObject.size.y;
+        gameObject.position.y = (gameObject.shapeType == ShapeType::Rectangle)
+            ? bounds.maxY - gameObject.size.y
+            : bounds.maxY - gameObject.radius;
         gameObject.velocity.y = -gameObject.velocity.y;
     } else if (gameObject.bottom() < bounds.minY) {
-        gameObject.position.y = bounds.minY;
+        gameObject.position.y = (gameObject.shapeType == ShapeType::Rectangle)
+            ? bounds.minY
+            : bounds.minY + gameObject.radius;
         gameObject.velocity.y = -gameObject.velocity.y;
     }
 }

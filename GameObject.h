@@ -22,16 +22,44 @@ struct GameObject {
     }
 
     Vec2 center() const {
-        return Vec2{position.x + size.x / 2.0f, position.y + size.y / 2.0f};
+        if (shapeType == ShapeType::Rectangle) {
+            return Vec2{position.x + size.x / 2.0f, position.y + size.y / 2.0f};
+        } else {
+            return position;
+        }
     }
 
-    float left() const { return position.x; }
+    float left() const {
+        if (shapeType == ShapeType::Rectangle) {
+            return position.x;
+        } else {
+            return position.x - radius;
+        }
+    }
 
-    float right() const { return position.x + size.x; }
+    float right() const {
+        if (shapeType == ShapeType::Rectangle) {
+            return position.x + size.x;
+        } else {
+            return position.x + radius;
+        }
+    }
     
-    float bottom() const { return position.y; }
+    float bottom() const { 
+        if (shapeType == ShapeType::Rectangle) {
+            return position.y;
+        } else {
+            return position.y - radius;
+        }
+    }
     
-    float top() const { return position.y + size.y; }
+    float top() const {
+        if (shapeType == ShapeType::Rectangle) {
+            return position.y + size.y;
+        } else {
+            return position.y + radius;
+        }
+    }
 
 };
 
