@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "Bounds.h"
 
+bool isAffectedByCollision(const GameObject& gameObject);
 void handleXBounds(GameObject& gameObject, const Bounds& bounds);
 void handleYBounds(GameObject& gameObject, const Bounds& bounds);
 bool isOverlappingX(const GameObject& a, const GameObject& b);

@@ -2,9 +2,9 @@
 #include "Engine.h"
 
 Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {
-    objects[0] = {"Player", ShapeType::Rectangle, {1.0f, 1.0f}, 0.0f, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
-    objects[1] = {"Enemy", ShapeType::Rectangle, {1.0f, 1.0f}, 0.0f, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
-    objects[2] = {"Ball", ShapeType::Circle, {0.0f, 0.0f}, 0.15f, {4.0f, 3.0f}, {0.0f, 0.0f}, {0.0f, -3.8f}};
+    objects[0] = {"Player", ShapeType::Rectangle, BodyType::Character, {1.0f, 1.0f}, 0.0f, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
+    objects[1] = {"Enemy", ShapeType::Rectangle, BodyType::Kinematic, {1.0f, 1.0f}, 0.0f, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
+    objects[2] = {"Ball", ShapeType::Circle, BodyType::Dynamic, {0.0f, 0.0f}, 0.15f, {4.0f, 3.0f}, {0.0f, 0.0f}, {0.0f, -3.8f}};
 }
 
 void Engine::updateState() {

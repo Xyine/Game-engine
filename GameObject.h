@@ -7,9 +7,17 @@ enum class ShapeType {
     Circle
 };
 
+enum class BodyType {
+    Static,
+    Kinematic,
+    Dynamic,
+    Character
+};
+
 struct GameObject {
     const char* name;
     ShapeType shapeType;
+    BodyType bodyType;
     Vec2 size;
     float radius;
     Vec2 position;

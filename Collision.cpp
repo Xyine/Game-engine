@@ -1,6 +1,11 @@
 #include <algorithm>
 #include "Collision.h"
 
+bool isAffectedByCollision(const GameObject& gameObject) {
+    return gameObject.bodyType == BodyType::Character
+        || gameObject.bodyType == BodyType::Dynamic;
+}
+
 void handleXBounds(GameObject& gameObject, const Bounds& bounds) {
     if (gameObject.right() > bounds.maxX) {
         gameObject.position.x = (gameObject.shapeType == ShapeType::Rectangle)
@@ -53,12 +58,26 @@ void separateObjectsX(GameObject& a, GameObject& b) {
     float xOverlap = overlapX(a, b);
     float aCenterX = a.center().x;
     float bCenterX = b.center().x;
-    if (aCenterX < bCenterX) {
-        a.position.x = a.position.x - xOverlap / 2.0f;
-        b.position.x = b.position.x + xOverlap / 2.0f;
-    } else {
-        a.position.x = a.position.x + xOverlap / 2.0f;
-        b.position.x = b.position.x - xOverlap / 2.0f;
+    if (isAffectedByCollision(a) && isAffectedByCollision(b)) {
+        if (aCenterX < bCenterX) {
+            a.position.x = a.position.x - xOverlap / 2.0f;
+            b.position.x = b.position.x + xOverlap / 2.0f;
+        } else {
+            a.position.x = a.position.x + xOverlap / 2.0f;
+            b.position.x = b.position.x - xOverlap / 2.0f;
+        }
+    } else if (isAffectedByCollision(a)) {
+        if (aCenterX < bCenterX) {
+            a.position.x = a.position.x - xOverlap;
+        } else {
+            a.position.x = a.position.x + xOverlap;
+        }
+    } else if (isAffectedByCollision(b)) {
+        if (aCenterX < bCenterX) {
+            b.position.x = b.position.x + xOverlap;
+        } else {
+            b.position.x = b.position.x - xOverlap;
+        }
     }
 }
 
@@ -66,24 +85,46 @@ void separateObjectsY(GameObject& a, GameObject& b) {
     float yOverlap = overlapY(a, b);
     float aCenterY = a.center().y;
     float bCenterY = b.center().y;
-    if (aCenterY < bCenterY) {
-        a.position.y = a.position.y - yOverlap / 2.0f;
-        b.position.y = b.position.y + yOverlap / 2.0f;
-    } else {
-        a.position.y = a.position.y + yOverlap / 2.0f;
-        b.position.y = b.position.y - yOverlap / 2.0f;
+    if (isAffectedByCollision(a) && isAffectedByCollision(b)) {
+        if (aCenterY < bCenterY) {
+            a.position.y = a.position.y - yOverlap / 2.0f;
+            b.position.y = b.position.y + yOverlap / 2.0f;
+        } else {
+            a.position.y = a.position.y + yOverlap / 2.0f;
+            b.position.y = b.position.y - yOverlap / 2.0f;
+        }
+    } else if (isAffectedByCollision(a)) {
+        if (aCenterY < bCenterY) {
+            a.position.y = a.position.y - yOverlap ;
+        } else {
+            a.position.y = a.position.y + yOverlap;
+        }
+    } else if (isAffectedByCollision(b)) {
+        if (aCenterY < bCenterY) {
+            b.position.y = b.position.y + yOverlap;
+        } else {
+            b.position.y = b.position.y - yOverlap;
+        }
     }
 }
 
 void resolveCollisionX(GameObject& a, GameObject& b) {
-    a.velocity.x = -a.velocity.x;
-    b.velocity.x = -b.velocity.x;
+     if (isAffectedByCollision(a)) {
+        a.velocity.x = -a.velocity.x;
+    }
+    if (isAffectedByCollision(b)) {
+        b.velocity.x = -b.velocity.x;
+    }
     separateObjectsX(a, b);
 }
 
 void resolveCollisionY(GameObject& a, GameObject& b) {
-    a.velocity.y = -a.velocity.y;
-    b.velocity.y = -b.velocity.y;
+     if (isAffectedByCollision(a)) {
+        a.velocity.y = -a.velocity.y;
+    }
+    if (isAffectedByCollision(b)) {
+        b.velocity.y = -b.velocity.y;
+    }
     separateObjectsY(a, b);
 }
 
