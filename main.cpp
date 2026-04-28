@@ -14,17 +14,9 @@ int main()
     sf::RenderWindow window(sf::VideoMode(800, windowHeight), "Engine + SFML");
     window.setVerticalSyncEnabled(true);
 
-    sf::RectangleShape player;
-    player.setFillColor(sf::Color::Green);
-    player.setSize(worldToScreenSize(engine.objects[0], scale));
-
-    sf::RectangleShape enemy;
-    enemy.setFillColor(sf::Color::Red);
-    enemy.setSize(worldToScreenSize(engine.objects[1], scale));
-
     sf::CircleShape ball;
     ball.setFillColor(sf::Color::Blue);
-    ball.setRadius(worldToScreenRadius(engine.objects[2], scale));
+    ball.setRadius(worldToScreenRadius(engine.objects[0], scale));
 
     sf::Clock clock;
 
@@ -40,17 +32,26 @@ int main()
                 window.close();
         }
 
-        updatePlayerInput(engine.objects[0]);
-
         engine.update();
-        
-        player.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
-        enemy.setPosition(worldToScreenPosition(engine.objects[1], scale, windowHeight));
-        ball.setPosition(worldToScreenPosition(engine.objects[2], scale, windowHeight));
+
+        ball.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
 
         window.clear();
-        window.draw(player);
-        window.draw(enemy);
+        
+        for (size_t i = 1; i < engine.objects.size(); i++) {
+            if (!engine.objects[i].isBroken) {
+                sf::CircleShape ring;
+                ring.setRadius(worldToScreenRadius(engine.objects[i], scale));
+                ring.setFillColor(sf::Color::Transparent);
+                ring.setOutlineColor(sf::Color::Yellow);
+                ring.setOutlineThickness(2.f);
+
+                ring.setPosition(worldToScreenPosition(engine.objects[i], scale, windowHeight));
+
+                window.draw(ring);
+            }
+        }
+
         window.draw(ball);
         window.display();
     }

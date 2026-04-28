@@ -1,8 +1,7 @@
 #pragma once
-#include <array>
+#include <vector>
 #include "Collision.h"
 
-const int objectCount = 3;
 
 struct Engine {
     bool debugEnabled;
@@ -11,7 +10,7 @@ struct Engine {
     int maxFrames;  // configuration
     float deltaTime;
     Bounds worldBounds;
-    std::array<GameObject, objectCount> objects;
+    std::vector<GameObject> objects;
 
     Engine();
     void updateState();

@@ -4,7 +4,8 @@
 
 enum class ShapeType {
     Rectangle,
-    Circle
+    Circle,
+    Ring
 };
 
 enum class BodyType {
@@ -23,6 +24,7 @@ struct GameObject {
     Vec2 position;
     Vec2 velocity;
     Vec2 acceleration;
+    bool isBroken;
 
     void move(float deltaTime) {
         Vec2 deltaPosition = velocity.scale(deltaTime);

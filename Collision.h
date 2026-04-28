@@ -15,3 +15,5 @@ void separateObjectsY(GameObject& a, GameObject& b);
 void resolveCollisionX(GameObject& a, GameObject& b);
 void resolveCollisionY(GameObject& a, GameObject& b);
 void resolveCollision(GameObject& a, GameObject& b);
+bool isCircleCollidingWithRing(const GameObject& circle, const GameObject& ring);
+void resolveCircleRingCollision(GameObject& circle, GameObject& ring);

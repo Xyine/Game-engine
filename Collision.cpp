@@ -43,6 +43,22 @@ bool isOverlappingY(const GameObject& a, const GameObject& b) {
 }
 
 bool isColliding(const GameObject& a, const GameObject& b) {
+    if (a.isBroken || b.isBroken) {
+        return false;
+    }
+
+    if (a.shapeType == ShapeType::Circle && b.shapeType == ShapeType::Ring) {
+        return isCircleCollidingWithRing(a, b);
+    }
+
+    if (a.shapeType == ShapeType::Ring && b.shapeType == ShapeType::Circle) {
+        return isCircleCollidingWithRing(b, a);
+    }
+
+    if (a.shapeType == ShapeType::Ring || b.shapeType == ShapeType::Ring) {
+        return false;
+    }
+
     return isOverlappingX(a, b) && isOverlappingY(a, b);
 }
 
@@ -130,11 +146,59 @@ void resolveCollisionY(GameObject& a, GameObject& b) {
 
 // choose the axis with the least overlap
 void resolveCollision(GameObject& a, GameObject& b) { // TEMPORARY
+    if (a.isBroken || b.isBroken) {
+        return;
+    }
+
+    if (a.shapeType == ShapeType::Circle && b.shapeType == ShapeType::Ring) {
+        resolveCircleRingCollision(a, b);
+        return;
+    }
+
+    if (a.shapeType == ShapeType::Ring && b.shapeType == ShapeType::Circle) {
+        resolveCircleRingCollision(b, a);
+        return;
+    }
+
     float xOverlap = overlapX(a, b);
     float yOverlap = overlapY(a, b);
+
     if (xOverlap < yOverlap) {
         resolveCollisionX(a, b);
     } else {
         resolveCollisionY(a, b);
-    }    
+    }
+}
+
+bool isCircleCollidingWithRing(const GameObject& circle, const GameObject& ring) {
+    Vec2 toCircle = circle.center().subtract(ring.center());
+    float distance = toCircle.length();
+
+    float innerTouchDistance = ring.radius - circle.radius;
+
+    if (distance < innerTouchDistance) {
+        return false;
+    }
+
+    Vec2 normal = toCircle.normalized();
+    float velocityAlongNormal = circle.velocity.dot(normal);
+
+    return velocityAlongNormal > 0.0f;
+}
+
+void resolveCircleRingCollision(GameObject& circle, GameObject& ring) {
+    Vec2 toCircle = circle.center().subtract(ring.center());
+    Vec2 normal = toCircle.normalized();
+
+    float innerLimit = ring.radius - circle.radius;
+
+    circle.position = ring.center().add(normal.scale(innerLimit));
+
+    float velocityAlongNormal = circle.velocity.dot(normal);
+
+    circle.velocity = circle.velocity.subtract(
+        normal.scale(2.0f * velocityAlongNormal)
+    );
+
+    ring.isBroken = true;
 }

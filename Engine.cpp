@@ -1,10 +1,39 @@
 #include <iostream>
 #include "Engine.h"
 
-Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(3), deltaTime(0.5f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {
-    objects[0] = {"Player", ShapeType::Rectangle, BodyType::Character, {1.0f, 1.0f}, 0.0f, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
-    objects[1] = {"Enemy", ShapeType::Rectangle, BodyType::Kinematic, {1.0f, 1.0f}, 0.0f, {1.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}};
-    objects[2] = {"Ball", ShapeType::Circle, BodyType::Dynamic, {0.0f, 0.0f}, 0.15f, {4.0f, 3.0f}, {0.0f, 0.0f}, {0.0f, -3.8f}};
+Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {
+
+    // BALL (index 0)
+    objects.push_back({
+        "Ball",
+        ShapeType::Circle,
+        BodyType::Dynamic,
+        {0.0f, 0.0f},
+        0.15f,
+        {4.0f, 3.0f},
+        {3.5f, 0.0f},
+        {0.0f, -3.8f},
+        false
+    });
+
+    // RINGS (index 1 → 100)
+    float maxRadius = 2.8f;
+    float startRadius = 0.3f;
+    float spacing = (maxRadius - startRadius) / 99.0f;
+
+    for (int i = 0; i < 100; i++) {
+        objects.push_back({
+            "Ring",
+            ShapeType::Ring,
+            BodyType::Static,
+            {0.0f, 0.0f},
+            startRadius + i * spacing,
+            {4.0f, 3.0f},
+            {0.0f, 0.0f},
+            {0.0f, 0.0f},
+            false
+        });
+    }
 }
 
 void Engine::updateState() {
@@ -40,8 +69,9 @@ void Engine::resolveObjectsCollision(int i, int j) {
 }
 
 void Engine::collisionSystemAllPairs() {
-    for (int i = 0; i < objectCount; i++) {
-        for (int j = i + 1; j < objectCount; j++) {
+    for (size_t i = 0; i < objects.size(); i++) {
+        for (size_t j = i + 1; j < objects.size(); j++) {
+
             if (debugEnabled) {
                 std::cout 
                 << "Checking collision between "
@@ -50,6 +80,7 @@ void Engine::collisionSystemAllPairs() {
                 << objects[j].name
                 << "...\n";
             }
+
             if (areObjectsColliding(i, j)) {
                 if (debugEnabled) {
                     std::cout 
@@ -59,6 +90,7 @@ void Engine::collisionSystemAllPairs() {
                     << objects[j].name
                     << "\n";
                 }
+
                 resolveObjectsCollision(i, j);
             }
         }
