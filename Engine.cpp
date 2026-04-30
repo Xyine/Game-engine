@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Engine.h"
 
-Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {
+Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f}, score{0} {
 
     // BALL (index 0)
     objects.push_back({
@@ -90,7 +90,7 @@ void Engine::collisionSystemAllPairs() {
                     << objects[j].name
                     << "\n";
                 }
-
+                score ++;
                 resolveObjectsCollision(i, j);
             }
         }

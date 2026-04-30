@@ -10,6 +10,7 @@ struct Engine {
     int maxFrames;  // configuration
     float deltaTime;
     Bounds worldBounds;
+    int score;
     std::vector<GameObject> objects;
 
     Engine();
