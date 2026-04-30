@@ -4,8 +4,6 @@ A simple 2D game engine built from scratch in C++ using SFML for rendering.
 
 This project focuses on implementing core game engine systems manually, including physics, collision detection, and object management, without relying on external physics libraries.
 
----
-
 ## Features
 
 - Custom 2D physics system (velocity, acceleration, delta time)
@@ -15,8 +13,6 @@ This project focuses on implementing core game engine systems manually, includin
 - Dynamic object system using `std::vector`
 - World-to-screen coordinate transformation
 - Real-time rendering using SFML
-
----
 
 ## Demo Gameplay
 
@@ -28,7 +24,6 @@ This project focuses on implementing core game engine systems manually, includin
   - the ring breaks and disappears
 - The ball continues until all rings are destroyed
 
----
 
 ## Technical Highlights
 
@@ -87,14 +82,14 @@ g++ *.cpp -o engine -lsfml-graphics -lsfml-window -lsfml-system
 
 This project was built to deepen understanding of:
 
-Game engine architecture
-Physics simulation
-Collision detection and resolution
-Real-time systems in C++
+- Game engine architecture
+- Physics simulation
+- Collision detection and resolution
+- Real-time systems in C++
 
 ## Future Improvements
 
-Spatial partitioning (QuadTree / Grid)
-Rotations and angular physics
-Particle system for ring breaking
-Basic ECS (Entity Component System)
+- Spatial partitioning (QuadTree / Grid)
+- Rotations and angular physics
+- Particle system for ring breaking
+- Basic ECS (Entity Component System)
