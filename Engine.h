@@ -28,4 +28,5 @@ struct Engine {
     void update();
     void render() const;
     void run();
+    void reset();
 };

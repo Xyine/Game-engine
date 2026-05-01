@@ -16,8 +16,12 @@ int main()
         return -1;
     }
 
-    sf::Text text(std::to_string(engine.score), font, 30);
-    text.setFillColor(sf::Color::White);
+    sf::Text reset("Reset", font, 20);
+    reset.setFillColor(sf::Color::White);
+    reset.setPosition(30, 20);
+
+    sf::Text score(std::to_string(engine.score), font, 30);
+    score.setFillColor(sf::Color::White);
 
     sf::RenderWindow window(sf::VideoMode(800, windowHeight), "Engine + SFML");
     window.setVerticalSyncEnabled(true);
@@ -34,21 +38,34 @@ int main()
         engine.deltaTime = deltaTime;
 
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+
+                sf::Vector2f mousePos(
+                    event.mouseButton.x,
+                    event.mouseButton.y
+                );
+
+                if (reset.getGlobalBounds().contains(mousePos)) {
+                    engine.reset();
+                    engine.debugEnabled = false;
+                }
+            }
         }
 
         engine.update();
 
-        text.setString(std::to_string(engine.score));
-        sf::FloatRect bounds = text.getLocalBounds();
-        text.setOrigin(
+        score.setString(std::to_string(engine.score));
+        sf::FloatRect bounds = score.getLocalBounds();
+        score.setOrigin(
             bounds.left + bounds.width / 2.0f,
             bounds.top + bounds.height / 2.0f
         );
-        text.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
+        score.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
 
         ball.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
 
@@ -67,7 +84,8 @@ int main()
                 window.draw(ring);
             }
         }
-        window.draw(text);
+        window.draw(reset);
+        window.draw(score);
         window.draw(ball);
         window.display();
     }

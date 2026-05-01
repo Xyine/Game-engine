@@ -154,3 +154,7 @@ void Engine::run() {
         std::cout << "Engine stopped.\n";
     }
 }
+
+void Engine::reset() {
+    *this = Engine();
+}
