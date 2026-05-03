@@ -95,9 +95,7 @@ int main()
                     );
 
                     if (play.getGlobalBounds().contains(mousePos)) {
-                        if (previous_state == PAUSE) state = PAUSE;
-                        else state = GAME;
-                        previous_state = MENU;
+                        state = (previous_state == PAUSE) ? PAUSE : GAME;
                     }
                     if (quit.getGlobalBounds().contains(mousePos)) {
                         window.close();
@@ -109,7 +107,7 @@ int main()
             window.draw(quit);
         }
 
-        else if (state == GAME) {
+        else {
             while (window.pollEvent(event)) {
                 if (event.type == sf::Event::Closed)
                     window.close();
@@ -128,49 +126,18 @@ int main()
                     }
 
                     if (menu.getGlobalBounds().contains(mousePos)) {
+                        previous_state = state;
                         state = MENU;
-                        previous_state = GAME;
                     }
                     if (pause.getGlobalBounds().contains(mousePos)) {
-                        state = PAUSE;
-                        previous_state = GAME;
+                        previous_state = state;
+                        state = (state == GAME) ? PAUSE : GAME;
                     }
                 }
             }
 
-            engine.update();
-            window.clear();
-            drawGame(window, engine, ball, reset, menu, pause, score, scale, static_cast<float>(windowHeight));
-        }
+            if (state == GAME) engine.update();
 
-        else if (state == PAUSE) {
-            while (window.pollEvent(event)) {
-                if (event.type == sf::Event::Closed)
-                    window.close();
-
-                if (event.type == sf::Event::MouseButtonPressed) {
-
-                    sf::Vector2f mousePos(
-                        event.mouseButton.x,
-                        event.mouseButton.y
-                    );
-
-                    if (reset.getGlobalBounds().contains(mousePos)) {
-                        engine.reset();
-                        engine.debugEnabled = false;
-                    }
-
-                    if (menu.getGlobalBounds().contains(mousePos)) {
-                        state = MENU;
-                        previous_state = PAUSE;
-                    }
-
-                    if (pause.getGlobalBounds().contains(mousePos)) {
-                        state = GAME;
-                        previous_state = PAUSE;
-                    }
-                }
-            }
             window.clear();
             drawGame(window, engine, ball, reset, menu, pause, score, scale, static_cast<float>(windowHeight));
         }

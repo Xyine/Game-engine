@@ -1,40 +1,7 @@
 #include <iostream>
 #include "Engine.h"
 
-Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f}, score{0} {
-
-    // BALL (index 0)
-    objects.push_back({
-        "Ball",
-        ShapeType::Circle,
-        BodyType::Dynamic,
-        {0.0f, 0.0f},
-        0.15f,
-        {4.0f, 3.0f},
-        {3.5f, 0.0f},
-        {0.0f, -3.8f},
-        false
-    });
-
-    // RINGS (index 1 → 100)
-    float maxRadius = 2.8f;
-    float startRadius = 0.3f;
-    float spacing = (maxRadius - startRadius) / 99.0f;
-
-    for (int i = 0; i < 100; i++) {
-        objects.push_back({
-            "Ring",
-            ShapeType::Ring,
-            BodyType::Static,
-            {0.0f, 0.0f},
-            startRadius + i * spacing,
-            {4.0f, 3.0f},
-            {0.0f, 0.0f},
-            {0.0f, 0.0f},
-            false
-        });
-    }
-}
+Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f}, score{0} {}
 
 void Engine::updateState() {
     frame++;
