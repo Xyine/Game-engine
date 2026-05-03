@@ -26,6 +26,7 @@ int main()
     GameState state = MENU;
     GameState previous_state = MENU;
     Engine engine;
+    int scoreValue = 0;
     setupRingGameObjects(engine);
     engine.debugEnabled = false;
     
@@ -58,7 +59,7 @@ int main()
     quit.setFillColor(sf::Color::White);
     quit.setPosition(450, 250);
 
-    sf::Text score(std::to_string(engine.score), font, 30);
+    sf::Text score(std::to_string(scoreValue), font, 30);
     score.setFillColor(sf::Color::White);
 
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Engine + SFML");
@@ -77,7 +78,7 @@ int main()
 
         sf::Event event;
 
-        score.setString(std::to_string(engine.score));
+        score.setString(std::to_string(scoreValue));
         sf::FloatRect bounds = score.getLocalBounds();
         score.setOrigin(bounds.left + bounds.width / 2.0f, bounds.top + bounds.height / 2.0f);
         score.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
@@ -105,9 +106,7 @@ int main()
             window.clear();
             window.draw(play);
             window.draw(quit);
-        }
-
-        else {
+        } else {
             while (window.pollEvent(event)) {
                 if (event.type == sf::Event::Closed)
                     window.close();
@@ -136,7 +135,10 @@ int main()
                 }
             }
 
-            if (state == GAME) engine.update();
+            if (state == GAME) {
+                engine.update();
+                scoreValue += engine.lastCollisionCount;
+            }
 
             window.clear();
             drawGame(window, engine, ball, reset, menu, pause, score, scale, static_cast<float>(windowHeight));

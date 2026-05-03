@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Engine.h"
 
-Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f}, score{0} {}
+Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {}
 
 void Engine::updateState() {
     frame++;
@@ -36,6 +36,8 @@ void Engine::resolveObjectsCollision(int i, int j) {
 }
 
 void Engine::collisionSystemAllPairs() {
+    lastCollisionCount = 0;
+
     for (size_t i = 0; i < objects.size(); i++) {
         for (size_t j = i + 1; j < objects.size(); j++) {
 
@@ -57,8 +59,8 @@ void Engine::collisionSystemAllPairs() {
                     << objects[j].name
                     << "\n";
                 }
-                score ++;
                 resolveObjectsCollision(i, j);
+                lastCollisionCount++;
             }
         }
     }
