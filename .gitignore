@@ -1,2 +1,4 @@
 main
-.o
+ring_game_app
+
+*.o
