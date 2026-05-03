@@ -1,7 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "Engine.h"
 #include "Render.h"
-#include "Input.h"
 
 enum GameState {
     MENU,
@@ -31,7 +30,6 @@ int main()
     const float scale = 100.f;
     const unsigned int windowWidth = 800;
     const unsigned int windowHeight = 600;
-    const float worldWindowHeight = 600.f;
 
     sf::Font font;
     if (!font.loadFromFile("assets/fonts/DejaVuSans.ttf")) {
@@ -139,7 +137,7 @@ int main()
 
             engine.update();
             window.clear();
-            drawGame(window, engine, ball, reset, menu, pause, score, scale, worldWindowHeight);
+            drawGame(window, engine, ball, reset, menu, pause, score, scale, static_cast<float>(windowHeight));
         }
 
         else if (state == PAUSE) {
@@ -171,7 +169,7 @@ int main()
                 }
             }
             window.clear();
-            drawGame(window, engine, ball, reset, menu, pause, score, scale, worldWindowHeight);
+            drawGame(window, engine, ball, reset, menu, pause, score, scale, static_cast<float>(windowHeight));
         }
         window.display();
     }
@@ -188,9 +186,9 @@ void drawGame(
     const sf::Text& pause,
     const sf::Text& score,
     float scale,
-    float worldWindowHeight
+    float windowHeight
 ) {
-    ball.setPosition(worldToScreenPosition(engine.objects[0], scale, worldWindowHeight));
+    ball.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
 
     for (size_t i = 1; i < engine.objects.size(); i++) {
         if (!engine.objects[i].isBroken) {
@@ -199,7 +197,7 @@ void drawGame(
             ring.setFillColor(sf::Color::Transparent);
             ring.setOutlineColor(sf::Color::Yellow);
             ring.setOutlineThickness(2.f);
-            ring.setPosition(worldToScreenPosition(engine.objects[i], scale, worldWindowHeight));
+            ring.setPosition(worldToScreenPosition(engine.objects[i], scale, windowHeight));
             window.draw(ring);
         }
     }
