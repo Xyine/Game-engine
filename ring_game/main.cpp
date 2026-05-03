@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "Engine.h"
 #include "Render.h"
+#include "RingGameSetup.h"
 
 enum GameState {
     MENU,
@@ -25,6 +26,7 @@ int main()
     GameState state = MENU;
     GameState previous_state = MENU;
     Engine engine;
+    setupRingGameObjects(engine);
     engine.debugEnabled = false;
     
     const float scale = 100.f;
@@ -122,6 +124,7 @@ int main()
                     if (reset.getGlobalBounds().contains(mousePos)) {
                         engine.reset();
                         engine.debugEnabled = false;
+                        setupRingGameObjects(engine);
                     }
 
                     if (menu.getGlobalBounds().contains(mousePos)) {
