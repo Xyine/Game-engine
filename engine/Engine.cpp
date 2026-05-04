@@ -1,27 +1,9 @@
 #include <iostream>
 #include "Engine.h"
 
-Engine::Engine() : debugEnabled(true), isRunning(true), frame(0), maxFrames(1000), deltaTime(0.016f), worldBounds{0.0f, 8.0f, 0.0f, 6.0f} {}
+Engine::Engine() : debugEnabled(false), deltaTime(0.0f), worldBounds{0.0f, 0.0f, 0.0f, 0.0f} {}
 
-void Engine::updateState() {
-    frame++;
-
-    if (frame >= maxFrames) {
-        isRunning = false;
-    }
-}
-
-bool Engine::running() const {
-    return isRunning;
-}
-
-void Engine::input() {
-    if (debugEnabled) {
-        std::cout << "Handling input...\n";
-    }
-}
-
-void Engine::renderObjects() const {
+void Engine::debugPrintObjects() const {
     for (const GameObject& object : objects) {
         std::cout << object << "\n";
     }
@@ -35,8 +17,8 @@ void Engine::resolveObjectsCollision(int i, int j) {
     resolveCollision(objects[i], objects[j]);
 }
 
-void Engine::collisionSystemAllPairs() {
-    lastCollisionCount = 0;
+CollisionReport Engine::collisionSystemAllPairs() {
+    CollisionReport report;
 
     for (size_t i = 0; i < objects.size(); i++) {
         for (size_t j = i + 1; j < objects.size(); j++) {
@@ -60,10 +42,11 @@ void Engine::collisionSystemAllPairs() {
                     << "\n";
                 }
                 resolveObjectsCollision(i, j);
-                lastCollisionCount++;
+                report.events.push_back({i, j});
             }
         }
     }
+    return report;
 }
 
 void Engine::physicsSystem() {
@@ -91,38 +74,21 @@ void Engine::updateObjects() {
     movementSystem();
 }
 
-void Engine::update() {
-    input();
+UpdateReport Engine::update() {
     if (debugEnabled) {
         std::cout << "World bounds: " << worldBounds << "\n";
         std::cout << "Updating frame...\n";
     }
+
+    UpdateReport report;
+
     updateObjects();
-    collisionSystemAllPairs();
+    report.collisions = collisionSystemAllPairs();
     boundarySystem();
+
+    return report;
 }
 
-void Engine::render() const {
-    if (debugEnabled) {
-        std::cout << "Rendering frame...\n";
-        renderObjects();
-        std::cout << "---\n";
-    }
-}
-
-void Engine::run() {
-    while (running()) {
-        if (debugEnabled) {
-            std::cout << "Frame " << frame << "\n";
-        }
-        update();
-        render();
-        updateState();
-    }
-    if (debugEnabled) {
-        std::cout << "Engine stopped.\n";
-    }
-}
 
 void Engine::reset() {
     *this = Engine();

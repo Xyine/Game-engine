@@ -2,31 +2,38 @@
 #include <vector>
 #include "Collision.h"
 
+struct CollisionEvent {
+    size_t firstObjectIndex;
+    size_t secondObjectIndex;
+};
+
+struct CollisionReport {
+    std::vector<CollisionEvent> events;
+
+    int count() const {
+        return static_cast<int>(events.size());
+    }
+};
+
+struct UpdateReport {
+    CollisionReport collisions;
+};
 
 struct Engine {
     bool debugEnabled;
-    bool isRunning;
-    int frame;      // current frame count
-    int maxFrames;  // configuration
     float deltaTime;
     Bounds worldBounds;
-    int lastCollisionCount;
     std::vector<GameObject> objects;
 
     Engine();
-    void updateState();
-    bool running() const;
-    void input();
-    void renderObjects() const;
+    void debugPrintObjects() const;
     bool areObjectsColliding(int i, int j) const;
     void resolveObjectsCollision(int i, int j);
-    void collisionSystemAllPairs();
+    CollisionReport collisionSystemAllPairs();
     void physicsSystem();
     void movementSystem();
     void boundarySystem();
     void updateObjects();
-    void update();
-    void render() const;
-    void run();
+    UpdateReport update();
     void reset();
 };

@@ -26,6 +26,7 @@ int main()
     GameState state = MENU;
     GameState previous_state = MENU;
     Engine engine;
+    engine.worldBounds = {0.0f, 8.0f, 0.0f, 6.0f};
     int scoreValue = 0;
     setupRingGameObjects(engine);
     engine.debugEnabled = false;
@@ -120,6 +121,7 @@ int main()
 
                     if (reset.getGlobalBounds().contains(mousePos)) {
                         engine.reset();
+                        engine.worldBounds = {0.0f, 8.0f, 0.0f, 6.0f};
                         engine.debugEnabled = false;
                         setupRingGameObjects(engine);
                     }
@@ -136,8 +138,8 @@ int main()
             }
 
             if (state == GAME) {
-                engine.update();
-                scoreValue += engine.lastCollisionCount;
+                UpdateReport report = engine.update();
+                scoreValue += report.collisions.count();
             }
 
             window.clear();
@@ -160,6 +162,9 @@ void drawGame(
     float scale,
     float windowHeight
 ) {
+    if (engine.objects.empty()) {
+        return;
+    }
     ball.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
 
     for (size_t i = 1; i < engine.objects.size(); i++) {
