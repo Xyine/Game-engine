@@ -2,3 +2,4 @@ main
 ring_game_app
 
 *.o
+*.d
