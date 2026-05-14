@@ -8,28 +8,28 @@ bool isAffectedByCollision(const GameObject& gameObject) {
 
 void handleXBounds(GameObject& gameObject, const Bounds& bounds) {
     if (gameObject.right() > bounds.maxX) {
-        gameObject.position.x = (gameObject.shapeType == ShapeType::Rectangle)
-            ? bounds.maxX - gameObject.size.x
-            : bounds.maxX - gameObject.radius;
+        gameObject.position.x = (gameObject.shapeType() == ShapeType::Rectangle)
+            ? bounds.maxX - gameObject.getSize().x
+            : bounds.maxX - gameObject.getRadius();
         gameObject.velocity.x = -gameObject.velocity.x;
     } else if (gameObject.left() < bounds.minX) {
-        gameObject.position.x = (gameObject.shapeType == ShapeType::Rectangle)
+        gameObject.position.x = (gameObject.shapeType() == ShapeType::Rectangle)
             ? bounds.minX
-            : bounds.minX + gameObject.radius;
+            : bounds.minX + gameObject.getRadius();
         gameObject.velocity.x = -gameObject.velocity.x;
     }
 }
 
 void handleYBounds(GameObject& gameObject, const Bounds& bounds) {
     if (gameObject.top() > bounds.maxY) {
-        gameObject.position.y = (gameObject.shapeType == ShapeType::Rectangle)
-            ? bounds.maxY - gameObject.size.y
-            : bounds.maxY - gameObject.radius;
+        gameObject.position.y = (gameObject.shapeType() == ShapeType::Rectangle)
+            ? bounds.maxY - gameObject.getSize().y
+            : bounds.maxY - gameObject.getRadius();
         gameObject.velocity.y = -gameObject.velocity.y;
     } else if (gameObject.bottom() < bounds.minY) {
-        gameObject.position.y = (gameObject.shapeType == ShapeType::Rectangle)
+        gameObject.position.y = (gameObject.shapeType() == ShapeType::Rectangle)
             ? bounds.minY
-            : bounds.minY + gameObject.radius;
+            : bounds.minY + gameObject.getRadius();
         gameObject.velocity.y = -gameObject.velocity.y;
     }
 }
@@ -47,15 +47,15 @@ bool isColliding(const GameObject& a, const GameObject& b) {
         return false;
     }
 
-    if (a.shapeType == ShapeType::Circle && b.shapeType == ShapeType::Ring) {
+    if (a.shapeType() == ShapeType::Circle && b.shapeType() == ShapeType::Ring) {
         return isCircleCollidingWithRing(a, b);
     }
 
-    if (a.shapeType == ShapeType::Ring && b.shapeType == ShapeType::Circle) {
+    if (a.shapeType()  == ShapeType::Ring && b.shapeType() == ShapeType::Circle) {
         return isCircleCollidingWithRing(b, a);
     }
 
-    if (a.shapeType == ShapeType::Ring || b.shapeType == ShapeType::Ring) {
+    if (a.shapeType() == ShapeType::Ring || b.shapeType() == ShapeType::Ring) {
         return false;
     }
 
@@ -150,12 +150,12 @@ void resolveCollision(GameObject& a, GameObject& b) { // TEMPORARY
         return;
     }
 
-    if (a.shapeType == ShapeType::Circle && b.shapeType == ShapeType::Ring) {
+    if (a.shapeType() == ShapeType::Circle && b.shapeType() == ShapeType::Ring) {
         resolveCircleRingCollision(a, b);
         return;
     }
 
-    if (a.shapeType == ShapeType::Ring && b.shapeType == ShapeType::Circle) {
+    if (a.shapeType() == ShapeType::Ring && b.shapeType() == ShapeType::Circle) {
         resolveCircleRingCollision(b, a);
         return;
     }
@@ -174,7 +174,7 @@ bool isCircleCollidingWithRing(const GameObject& circle, const GameObject& ring)
     Vec2 toCircle = circle.center().subtract(ring.center());
     float distance = toCircle.length();
 
-    float innerTouchDistance = ring.radius - circle.radius;
+    float innerTouchDistance = ring.getRadius() - circle.getRadius();
 
     if (distance < innerTouchDistance) {
         return false;
@@ -190,7 +190,7 @@ void resolveCircleRingCollision(GameObject& circle, GameObject& ring) {
     Vec2 toCircle = circle.center().subtract(ring.center());
     Vec2 normal = toCircle.normalized();
 
-    float innerLimit = ring.radius - circle.radius;
+    float innerLimit = ring.getRadius() - circle.getRadius();
 
     circle.position = ring.center().add(normal.scale(innerLimit));
 

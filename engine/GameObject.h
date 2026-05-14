@@ -1,12 +1,7 @@
 #pragma once
 #include <iostream>
+#include <string>
 #include "Vec2.h"
-
-enum class ShapeType {
-    Rectangle,
-    Circle,
-    Ring
-};
 
 enum class BodyType {
     Static,
@@ -15,76 +10,76 @@ enum class BodyType {
     Character
 };
 
-struct GameObject {
-    const char* name;
-    ShapeType shapeType;
+enum class ShapeType {
+    Rectangle,
+    Circle,
+    Ring
+};
+
+
+class GameObject {
+public:
+    std::string name;
     BodyType bodyType;
-    Vec2 size;
-    float radius;
     Vec2 position;
     Vec2 velocity;
     Vec2 acceleration;
     bool isBroken;
 
+    GameObject(
+        std::string name,
+        BodyType bodyType,
+        Vec2 position,
+        Vec2 velocity,
+        Vec2 acceleration
+    )
+        : name(name),
+          bodyType(bodyType),
+          position(position),
+          velocity(velocity),
+          acceleration(acceleration),
+          isBroken(false)
+    {}
+
+    virtual ~GameObject() = default;
+
+    virtual ShapeType shapeType() const = 0;
+
+    virtual Vec2 getSize() const {
+        return Vec2{0.0f, 0.0f};
+    }
+    
+    virtual float getRadius() const {
+        return 0.0f;
+    }
+
     void move(float deltaTime) {
         Vec2 deltaPosition = velocity.scale(deltaTime);
-        position = position.add(deltaPosition); 
+        position = position.add(deltaPosition);
     }
 
-    Vec2 center() const {
-        if (shapeType == ShapeType::Rectangle) {
-            return Vec2{position.x + size.x / 2.0f, position.y + size.y / 2.0f};
-        } else {
-            return position;
-        }
-    }
+    virtual Vec2 center() const = 0;
+    virtual float left() const = 0;
+    virtual float right() const = 0;
+    virtual float bottom() const = 0;
+    virtual float top() const = 0;
 
-    float left() const {
-        if (shapeType == ShapeType::Rectangle) {
-            return position.x;
-        } else {
-            return position.x - radius;
-        }
+    virtual void print(std::ostream& os) const {
+        os << name
+           << ", position: " << position
+           << ", center: " << center()
+           << ", bounds: "
+           << "[left: " << left()
+           << ", right: " << right()
+           << ", bottom: " << bottom()
+           << ", top: " << top()
+           << "]"
+           << ", velocity: " << velocity
+           << ", acceleration: " << acceleration;
     }
-
-    float right() const {
-        if (shapeType == ShapeType::Rectangle) {
-            return position.x + size.x;
-        } else {
-            return position.x + radius;
-        }
-    }
-    
-    float bottom() const { 
-        if (shapeType == ShapeType::Rectangle) {
-            return position.y;
-        } else {
-            return position.y - radius;
-        }
-    }
-    
-    float top() const {
-        if (shapeType == ShapeType::Rectangle) {
-            return position.y + size.y;
-        } else {
-            return position.y + radius;
-        }
-    }
-
 };
 
-inline std::ostream& operator<<(std::ostream& os, const GameObject& gameObject) {
-    os << gameObject.name << " size: " << gameObject.size
-    << ", position: " << gameObject.position
-    << ", center: " << gameObject.center()
-    << ", bounds: "
-    << "[left: " << gameObject.left() 
-    << ", right: " << gameObject.right() 
-    << ", bottom: " << gameObject.bottom() 
-    << ", top: " << gameObject.top() 
-    << "]"
-    << ", velocity: " << gameObject.velocity
-    << ", acceleration: " << gameObject.acceleration;
-
+inline std::ostream& operator<<(std::ostream& os, const GameObject& object) {
+    object.print(os);
     return os;
 }

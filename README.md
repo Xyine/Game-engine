@@ -68,6 +68,14 @@ SFML installed
 
 ### Build (example with g++)
 
+You can use the implement make:
+
+```bash
+make
+```
+
+or the classic:
+
 ```bash
 g++ *.cpp -o engine -lsfml-graphics -lsfml-window -lsfml-system
 ```

@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
 #include "Collision.h"
+#include <memory>
+
+
 
 struct CollisionEvent {
     size_t firstObjectIndex;
@@ -23,7 +26,7 @@ struct Engine {
     bool debugEnabled;
     float deltaTime;
     Bounds worldBounds;
-    std::vector<GameObject> objects;
+    std::vector<std::unique_ptr<GameObject>> objects;
 
     Engine();
     void debugPrintObjects() const;

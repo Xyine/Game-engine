@@ -68,7 +68,7 @@ int main()
 
     sf::CircleShape ball;
     ball.setFillColor(sf::Color::Blue);
-    ball.setRadius(worldToScreenRadius(engine.objects[0], scale));
+    ball.setRadius(worldToScreenRadius(*engine.objects[0], scale));
 
     sf::Clock clock;
 
@@ -165,16 +165,16 @@ void drawGame(
     if (engine.objects.empty()) {
         return;
     }
-    ball.setPosition(worldToScreenPosition(engine.objects[0], scale, windowHeight));
+    ball.setPosition(worldToScreenPosition(*engine.objects[0], scale, windowHeight));
 
     for (size_t i = 1; i < engine.objects.size(); i++) {
-        if (!engine.objects[i].isBroken) {
+        if (!engine.objects[i]->isBroken) {
             sf::CircleShape ring;
-            ring.setRadius(worldToScreenRadius(engine.objects[i], scale));
+            ring.setRadius(worldToScreenRadius(*engine.objects[i], scale));
             ring.setFillColor(sf::Color::Transparent);
             ring.setOutlineColor(sf::Color::Yellow);
             ring.setOutlineThickness(2.f);
-            ring.setPosition(worldToScreenPosition(engine.objects[i], scale, windowHeight));
+            ring.setPosition(worldToScreenPosition(*engine.objects[i], scale, windowHeight));
             window.draw(ring);
         }
     }

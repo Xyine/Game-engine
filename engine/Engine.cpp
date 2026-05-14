@@ -4,17 +4,17 @@
 Engine::Engine() : debugEnabled(false), deltaTime(0.0f), worldBounds{0.0f, 0.0f, 0.0f, 0.0f} {}
 
 void Engine::debugPrintObjects() const {
-    for (const GameObject& object : objects) {
-        std::cout << object << "\n";
+    for (auto& object : objects)  {
+        std::cout << *object << "\n";
     }
 }
 
 bool Engine::areObjectsColliding(int i, int j) const {
-    return isColliding(objects[i], objects[j]);
+    return isColliding(*objects[i], *objects[j]);
 }
 
 void Engine::resolveObjectsCollision(int i, int j) {
-    resolveCollision(objects[i], objects[j]);
+    resolveCollision(*objects[i], *objects[j]);
 }
 
 CollisionReport Engine::collisionSystemAllPairs() {
@@ -26,9 +26,9 @@ CollisionReport Engine::collisionSystemAllPairs() {
             if (debugEnabled) {
                 std::cout 
                 << "Checking collision between "
-                << objects[i].name
+                << objects[i]->name
                 << " and "
-                << objects[j].name
+                << objects[j]->name
                 << "...\n";
             }
 
@@ -36,9 +36,9 @@ CollisionReport Engine::collisionSystemAllPairs() {
                 if (debugEnabled) {
                     std::cout 
                     << "Collision detected between "
-                    << objects[i].name
+                    << objects[i]->name
                     << " and "
-                    << objects[j].name
+                    << objects[j]->name
                     << "\n";
                 }
                 resolveObjectsCollision(i, j);
@@ -50,22 +50,22 @@ CollisionReport Engine::collisionSystemAllPairs() {
 }
 
 void Engine::physicsSystem() {
-    for (GameObject& object : objects) {
-        Vec2 deltaVelocity = object.acceleration.scale(deltaTime);
-        object.velocity = object.velocity.add(deltaVelocity);
+    for (auto& object : objects) {
+        Vec2 deltaVelocity = object->acceleration.scale(deltaTime);
+        object->velocity = object->velocity.add(deltaVelocity);
     }
 }
 
 void Engine::movementSystem() {
-    for (GameObject& object : objects) {
-        object.move(deltaTime);
+    for (auto& object : objects) {
+        object->move(deltaTime);
     }
 }
 
 void Engine::boundarySystem() {
-    for (GameObject& object : objects) {
-        handleXBounds(object, worldBounds);
-        handleYBounds(object, worldBounds);
+    for (auto& object : objects) {
+        handleXBounds(*object, worldBounds);
+        handleYBounds(*object, worldBounds);
     }
 }
 
